@@ -7,7 +7,7 @@ const { authenticateUser } = require('../middleware/auth-user')
 const router = express.Router()
 const bcrypt = require('bcrypt')
 
-router.get('/users', asyncHandler(async (req, res) =>{
+router.get('/users', authenticateUser, asyncHandler(async (req, res) =>{
     const user = await User.findAll()
     res.json(user)
 }))

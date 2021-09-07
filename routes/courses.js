@@ -1,7 +1,8 @@
 'use strict';
 
 const express =require('express')
-const { asyncHandler } = require('../middleware/async-handler')
+const { asyncHandler } = require('../middleware/async-handler');
+const { authenticateUser } = require('../middleware/auth-user');
 const { Course } = require('../models')
 const router = express.Router()
 
@@ -15,7 +16,7 @@ router.get('/courses/:id', asyncHandler(async( req, res ) => {
     res.json(course)
 }))
 
-router.post('/courses', asyncHandler(async ( req, res ) => {
+router.post('/courses', authenticateUser, asyncHandler(async ( req, res ) => {
     try{
         const course = req.body 
         await Course.create(course)
@@ -32,7 +33,7 @@ router.post('/courses', asyncHandler(async ( req, res ) => {
         }
 }))
 
-router.put('/courses/:id', asyncHandler(async ( req, res ) =>{
+router.put('/courses/:id', authenticateUser, asyncHandler(async ( req, res ) =>{
     try{
         const course = await Course.findByPk(req.params.id)
         if(course){
@@ -51,7 +52,7 @@ router.put('/courses/:id', asyncHandler(async ( req, res ) =>{
         }
 }))
 
-router.delete('/courses/:id', asyncHandler(async ( req, res ) =>{
+router.delete('/courses/:id', authenticateUser, asyncHandler(async ( req, res ) =>{
     const course = await Course.findByPk(req.params.id)
     await course.destroy()
     res.status(204).end()
