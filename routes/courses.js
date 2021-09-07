@@ -7,12 +7,27 @@ const { Course } = require('../models')
 const router = express.Router()
 
 router.get('/courses', asyncHandler(async ( req, res ) =>{
-    const course = await Course.findAll()
+    const course = await Course.findAll({
+        attributes:{
+            exclude: [
+                'createdAt',
+                'updatedAt'
+            ]
+        }
+    })
+    
     res.json(course)
 }))
 
 router.get('/courses/:id', asyncHandler(async( req, res ) => {
-    const course = await Course.findByPk(req.params.id)
+    const course = await Course.findByPk(req.params.id, {
+        attributes:{
+            exclude: [
+                'createdAt',
+                'updatedAt'
+            ]
+        }
+    })
     res.json(course)
 }))
 
@@ -36,11 +51,18 @@ router.post('/courses', authenticateUser, asyncHandler(async ( req, res ) => {
 router.put('/courses/:id', authenticateUser, asyncHandler(async ( req, res ) =>{
     try{
         const course = await Course.findByPk(req.params.id)
-        if(course){
-            await course.update(req.body)
-            res.status(204).end()
+        if(req.currentUser != req.body.userId){
+            res.status(403)
+            .json({message: 'Current User does not own course. Unable to update'})
+            .end()
         }else{
-            res.status(404).end()
+            if(course){
+                console.log('UPDATING COURSE')
+                await course.update(req.body)
+                res.status(204).end()
+            }else{
+                res.status(404).end()
+            }
         }
     }catch(error){
         if (error.name === 'SequelizeValidationError' || error.name === 'SequelizeUniqueConstraintError') {
@@ -54,8 +76,14 @@ router.put('/courses/:id', authenticateUser, asyncHandler(async ( req, res ) =>{
 
 router.delete('/courses/:id', authenticateUser, asyncHandler(async ( req, res ) =>{
     const course = await Course.findByPk(req.params.id)
-    await course.destroy()
-    res.status(204).end()
+    if(req.currentUser != req.body.userId){
+        res.status(403)
+        .json({message: 'Current User does not own course. Unable to delete'})
+        .end()
+    }else{
+        await course.destroy()
+        res.status(204).end()
+    }
 }))
 
 module.exports = router

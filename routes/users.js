@@ -8,8 +8,13 @@ const router = express.Router()
 const bcrypt = require('bcrypt')
 
 router.get('/users', authenticateUser, asyncHandler(async (req, res) =>{
-    const user = await User.findAll()
-    res.json(user)
+    const user = req.currentUser
+    res.json({
+      id:user.id,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      emailAddress: user.emailAddress
+    })
 }))
 
 router.post('/users', asyncHandler(async (req, res) => {
