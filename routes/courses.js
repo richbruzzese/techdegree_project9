@@ -51,19 +51,19 @@ router.post('/courses', authenticateUser, asyncHandler(async ( req, res ) => {
 router.put('/courses/:id', authenticateUser, asyncHandler(async ( req, res ) =>{
     try{
         const course = await Course.findByPk(req.params.id)
-        if(req.currentUser != req.body.userId){
-            res.status(403)
-            .json({message: 'Current User does not own course. Unable to update'})
-            .end()
-        }else{
-            if(course){
-                console.log('UPDATING COURSE')
-                await course.update(req.body)
-                res.status(204).end()
+            if( req.currentUser.id === course.userId ){
+                if(course){
+                    console.log('UPDATING COURSE')
+                    await course.update(req.body)
+                    res.status(204).end()
+                }else{
+                    res.status(404).end()
+                }
             }else{
-                res.status(404).end()
+                res.status(403)
+                .json({message: "Update Failed. User does not have permissions for requested course"})
             }
-        }
+            
     }catch(error){
         if (error.name === 'SequelizeValidationError' || error.name === 'SequelizeUniqueConstraintError') {
             const errors = error.errors.map(err => err.message);
@@ -76,9 +76,9 @@ router.put('/courses/:id', authenticateUser, asyncHandler(async ( req, res ) =>{
 
 router.delete('/courses/:id', authenticateUser, asyncHandler(async ( req, res ) =>{
     const course = await Course.findByPk(req.params.id)
-    if(req.currentUser != req.body.userId){
+    if(req.currentUser.id !== course.userId ){
         res.status(403)
-        .json({message: 'Current User does not own course. Unable to delete'})
+        .json({message: 'Course deletion failed. User does not have permissions for requested course'})
         .end()
     }else{
         await course.destroy()
