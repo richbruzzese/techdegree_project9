@@ -1,6 +1,6 @@
 'use strict';
 // Dependencies
-const express =require('express')
+const express = require('express')
 const { asyncHandler } = require('../middleware/async-handler');
 const { authenticateUser } = require('../middleware/auth-user');
 const { Course, User } = require('../models');
@@ -62,10 +62,11 @@ router.get('/courses/:id', asyncHandler(async( req, res ) => {
 //POST route will allow an authenticated user to create a new course
 router.post('/courses', authenticateUser, asyncHandler(async ( req, res ) => {
     try{
-        const course = req.body 
-        await Course.create(course)
+        let newCourse = req.body 
+        const createCourse = await Course.create(newCourse)
+        const { id } = createCourse
          res.status(201)
-         .location(`/api/courses/${course.id}`)
+         .location(`/api/courses/${id}`)
          .end()
         }catch(error){
         if (error.name === 'SequelizeValidationError' || error.name === 'SequelizeUniqueConstraintError') {
