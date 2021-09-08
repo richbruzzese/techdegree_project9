@@ -3,11 +3,24 @@
 const express =require('express')
 const { asyncHandler } = require('../middleware/async-handler');
 const { authenticateUser } = require('../middleware/auth-user');
-const { Course } = require('../models')
+const { Course, User } = require('../models');
 const router = express.Router()
 
 router.get('/courses', asyncHandler(async ( req, res ) =>{
     const course = await Course.findAll({
+        include: [
+            {
+                model: User,
+                as: 'Owner',
+                attributes:{
+                    exclude:[
+                        'password',
+                        'createdAt',
+                        'updatedAt'
+                    ]
+                }
+            }
+        ],
         attributes:{
             exclude: [
                 'createdAt',
@@ -21,6 +34,19 @@ router.get('/courses', asyncHandler(async ( req, res ) =>{
 
 router.get('/courses/:id', asyncHandler(async( req, res ) => {
     const course = await Course.findByPk(req.params.id, {
+        include: [
+            {
+                model: User,
+                as: 'Owner',
+                attributes:{
+                    exclude:[
+                        'password',
+                        'createdAt',
+                        'updatedAt'
+                    ]
+                }
+            }
+        ],
         attributes:{
             exclude: [
                 'createdAt',
@@ -37,7 +63,7 @@ router.post('/courses', authenticateUser, asyncHandler(async ( req, res ) => {
         await Course.create(course)
          res.status(201)
          .location(`/api/courses/${course.id}`)
-         .json({message: 'Course Created'})
+         .end()
         }catch(error){
         if (error.name === 'SequelizeValidationError' || error.name === 'SequelizeUniqueConstraintError') {
             const errors = error.errors.map(err => err.message);
