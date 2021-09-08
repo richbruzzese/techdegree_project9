@@ -1,11 +1,12 @@
 'use strict';
-
+// Dependencies
 const express =require('express')
 const { asyncHandler } = require('../middleware/async-handler');
 const { authenticateUser } = require('../middleware/auth-user');
 const { Course, User } = require('../models');
 const router = express.Router()
 
+// GET route provides a list of all courses and their owners
 router.get('/courses', asyncHandler(async ( req, res ) =>{
     const course = await Course.findAll({
         include: [
@@ -32,6 +33,7 @@ router.get('/courses', asyncHandler(async ( req, res ) =>{
     res.json(course)
 }))
 
+// GET Route provides the details of a single course and the owner of the course
 router.get('/courses/:id', asyncHandler(async( req, res ) => {
     const course = await Course.findByPk(req.params.id, {
         include: [
@@ -57,6 +59,7 @@ router.get('/courses/:id', asyncHandler(async( req, res ) => {
     res.json(course)
 }))
 
+//POST route will allow an authenticated user to create a new course
 router.post('/courses', authenticateUser, asyncHandler(async ( req, res ) => {
     try{
         const course = req.body 
@@ -74,6 +77,8 @@ router.post('/courses', authenticateUser, asyncHandler(async ( req, res ) => {
         }
 }))
 
+// PUT route will allow an authenticated user to update an existing course.
+// If the current authenticated user does not own the course to be updated, a 403 error is returned
 router.put('/courses/:id', authenticateUser, asyncHandler(async ( req, res ) =>{
     try{
         const course = await Course.findByPk(req.params.id)
@@ -100,6 +105,8 @@ router.put('/courses/:id', authenticateUser, asyncHandler(async ( req, res ) =>{
         }
 }))
 
+// DELETE route will allow an authenticated user to remove a course from the database
+// If the current authenticated user does not own the course to be deleted, a 403 error is returned
 router.delete('/courses/:id', authenticateUser, asyncHandler(async ( req, res ) =>{
     const course = await Course.findByPk(req.params.id)
     if(req.currentUser.id !== course.userId ){

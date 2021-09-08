@@ -1,5 +1,5 @@
 'use strict';
-
+//Dependencies
 const express =require('express')
 const { asyncHandler } = require('../middleware/async-handler')
 const { User } = require('../models')
@@ -7,6 +7,7 @@ const { authenticateUser } = require('../middleware/auth-user')
 const router = express.Router()
 const bcrypt = require('bcrypt')
 
+// Get route to provide details of current Authenticated user
 router.get('/users', authenticateUser, asyncHandler(async (req, res) =>{
     const user = req.currentUser
     res.json({
@@ -17,6 +18,7 @@ router.get('/users', authenticateUser, asyncHandler(async (req, res) =>{
     })
 }))
 
+// POST route to allow for creation of new users.  If password is provided, password is hashed before being stored in Database
 router.post('/users', asyncHandler(async (req, res) => {
     try {
       const user = req.body

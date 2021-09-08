@@ -2,6 +2,7 @@
 const { Model, DataTypes } = require('sequelize');
 const bcrypt = require('bcrypt')
 
+//User schema along with validations
 module.exports = (sequelize) => {
   class User extends Model {}
   User.init({

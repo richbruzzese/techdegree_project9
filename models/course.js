@@ -4,6 +4,7 @@ const {
 } = require('sequelize');
 module.exports = (sequelize, DataTypes) => {
   class Course extends Model {}
+  //Course schemas along with validation
   Course.init({
     title: {
       type: DataTypes.STRING,
