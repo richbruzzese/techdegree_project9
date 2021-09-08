@@ -52,3 +52,6 @@ When updating or deleting courses, the user credentials must match the userId fo
 
 If incomplete or inaccurate data is passed into the body of a request, the app will notify the user of the missing details.
 
+### Testing
+`RESTAPI_postman_collection.json` file can be imported into postman to provide user with all calls needed to test with.
+
